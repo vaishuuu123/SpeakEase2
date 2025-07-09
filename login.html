@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChatApp Login</title>
+
+  <style>
+    /* ---------- 1. Global reset ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ---------- 2. Themed background ---------- */
+body {
+  /* AGNO‑style deep‑space gradient */
+  background: radial-gradient(circle at 20% 20%,
+    #24004c 0%,
+    #19003a 35%,
+    #0d0024 70%,
+    #000 100%);
+  color: #fff;
+  font-family: 'Helvetica Neue', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative; /* Required for proper z-index stacking */
+}
+
+/* ---------- 3. Glassy panel ---------- */
+
+  .container {
+    background:rgba(0,0,0,0.7);
+  
+  padding: 30px;
+  width: 300px;
+  height: 370px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0,230,255,0.4),
+              0 0 40px rgba(163,108,255,0.3),
+              inset 0 0 10px rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+    border-radius: 30px;
+
+}
+
+
+
+
+
+/* Logo wrapper: add inner padding so the border is visible */
+.logo-wrapper{
+  width: 80px;
+  height: 80px;
+  padding: 2px;
+  margin-bottom: 10px;           /* NEW — makes the border ring visible */
+  margin:0 auto 14px;
+  border-radius:50%;
+  background:radial-gradient(circle,#2a004b,#100026);
+  border:2px solid rgba(0,230,255,.4);
+  box-shadow:0 0 12px rgba(0,230,255,.4),
+             0 0 24px rgba(0,230,255,.2);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.logo{
+  width:100%;              /* fills the padded circle */
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+/* Title already defined — no change needed */
+
+/* ——— ❶ Darker, subtler title + extra spacing ——— */
+.app-name{
+  /* darker gradient: midnight‑cyan → deep‑violet */
+  background:linear-gradient(90deg,#0099e6,#4c28ff,#7f1dff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:32px;           /* ← pushes inputs down */
+
+  /* gentler glow */
+  animation:glowText 6s ease-in-out infinite;
+}
+@keyframes glowText{
+  0%,100%{filter:drop-shadow(0 0 1px #4c28ff);}
+  50%   {filter:drop-shadow(0 0 4px #0099e6);}
+}
+
+
+
+
+/* ---------- 4. Input fields ---------- */
+.input {
+  width: 100%;
+  margin-bottom:20px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: none;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: grey;
+  font-size: 15px;
+  transition: background 0.25s ease;
+}
+
+.input::placeholder {
+  color: #aaa;
+}
+
+.input:focus {
+  outline: none;
+  background: #333;
+}
+
+/* ---------- 5. Accent button with oval glow ---------- */
+.login-btn {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 13px 0;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+   background:linear-gradient(135deg,#3722ff 0%,#0088ff 100%);
+  color:#fff;
+  border:1px solid rgba(0,136,255,.35);
+  box-shadow:0 0 8px rgba(0,136,255,.25);
+}
+
+.login-btn:hover {
+  
+   transform:translateY(-3px);
+  background:linear-gradient(135deg,#4e34ff 0%,#009eff 100%);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+.login-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  filter: blur(28px);
+  z-index: -1;
+  transition: opacity 0.3s ease;
+    background:rgba(0,136,255,.45);
+
+}
+
+.login-btn:hover::before {
+  opacity: 0.6;
+}
+
+
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Glassy login panel -->
+  <div class="container">
+    <div class="logo-wrapper">
+
+    <img src="https://cdn.glitch.global/139b9be5-34eb-430f-a97a-8bc34bfda987/image.png?v=1751667333298"
+         alt="ChatApp Logo" class="logo" id="imgsrc" />
+             </div>
+
+    <h1 class="app-name">SpeakEase</h1>
+
+    <input type="text" id="username" class="input" placeholder="Enter your username" />
+    <input type="password" id="password" class="input" placeholder="Enter your password" />
+    <button id="login-btn" class="login-btn" onclick="handleLogin()">Login</button>
+  </div>
+
+  <!-- ---------- 7. Logic ---------- -->
+  <script>
+    const user = params.get("user");
+const target = params.get("target");
+
+// Shared chatroom ID (ensures same chatroom no matter the order)
+const chatroomID = [user, target].sort().join("_");
+
+// Firebase path
+const chatRef = ref(db, `chatrooms/${chatroomID}`);
+
+    function isValidPassword(password) {
+      const minLength = 6;
+      const hasLetters = /[a-zA-Z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      return password.length >= minLength && hasLetters && hasNumbers;
+    }
+
+    function handleLogin() {
+      let username = document.getElementById("username").value;
+      let password = document.getElementById("password").value;
+
+      if (!username) {
+        alert("Please enter a username.");
+        return;
+      }
+
+      if (!isValidPassword(password)) {
+        alert("Password must be at least 6 characters long and include letters and numbers.");
+        return;
+      }
+
+      let imgsrc = document.getElementById("imgsrc").src;
+      openhome(username, imgsrc,password);
+    }
+
+    function openhome(username, imgsrc, password) {
+  const encodedName = encodeURIComponent(username);
+  const encodedImg = encodeURIComponent(imgsrc);
+  const encodedPass = encodeURIComponent(password);
+  window.location.href = `number.html?username=${encodedName}&img=${encodedImg}&pass=${encodedPass}`;
+}
+
+
+  </script>
+</body>
+</html>
